@@ -32,15 +32,18 @@ class UsersController {
       throw new AppError("Usuário não encontrado!")
     }
 
-    const userWithUpdatedEmail = await knex('users').where({email});
-
-    if(userWithUpdatedEmail.length !== 0 && userWithUpdatedEmail[0].id !== user[0].id) {
-      throw new AppError("Este e-mail já esta em uso")
-    }
-
     user[0].name = name ?? user[0].name;
     user[0].email = email ?? user[0].email;
+  
+    console.log(name)
+    console.log(email)
 
+    const userWithUpdatedEmail = await knex('users').where({email});
+
+    if(userWithUpdatedEmail.length !== 0) {
+      throw new AppError("Este e-mail já esta em uso")
+    }
+    
     if(password && !old_password) {
       throw new AppError("Você precisa informar a senha antiga para definir nova senha")
     }
