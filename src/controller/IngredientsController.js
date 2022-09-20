@@ -13,24 +13,6 @@ class IngredientsController {
     return res.json(ingredients)
   }
 
-  async create(req, res) {
-    const { name } = req.body;
-
-    if(!name) {
-      throw new AppError("Digite o nome do ingrediente")
-    }
-
-    try {
-      await knex('ingredients').insert({
-        name
-      })
-    } catch{
-      throw new AppError("Não foi possível cadastrar")
-    }
-
-    return res.status(200).json();
-  }
-
   async update(req, res) {
     const { name } = req.body
     const { id } = req.params
@@ -52,7 +34,6 @@ class IngredientsController {
     } catch {
       throw new AppError("Não foi possível cadastrar")
     }
-
 
     return res.json()
 

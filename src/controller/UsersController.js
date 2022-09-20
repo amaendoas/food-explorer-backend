@@ -26,22 +26,23 @@ class UsersController {
     const { name, email, old_password, password } = req.body;
     const { id } = req.params;
 
-    const user = await knex('users').where({id});
+    const [user] = await knex('users').where({id});
+
+    console.log(user)
 
     if(user.length === 0) {
       throw new AppError("Usuário não encontrado!")
     }
 
-    user[0].name = name ?? user[0].name;
-    user[0].email = email ?? user[0].email;
+    user.name = name ?? user.name;
+    user.email = email ?? user.email;
+    
+    if(email) {
+      const [userWithUpdatedEmail] = await knex('users').where({email});
   
-    console.log(name)
-    console.log(email)
-
-    const userWithUpdatedEmail = await knex('users').where({email});
-
-    if(userWithUpdatedEmail.length !== 0) {
-      throw new AppError("Este e-mail já esta em uso")
+      if(userWithUpdatedEmail.length !== 0 && userWithUpdatedEmail.id !== user.id) {
+        throw new AppError("Este e-mail já esta em uso")
+      }
     }
     
     if(password && !old_password) {
@@ -49,19 +50,19 @@ class UsersController {
     }
 
     if(password && old_password) {
-      const checkOldPassword = await compare(old_password, user[0].password)
+      const checkOldPassword = await compare(old_password, user.password)
 
       if(!checkOldPassword) {
         throw new AppError("A senha antiga não confere!")
       }
 
-      user[0].password = await hash(password, 8)
+      user.password = await hash(password, 8)
     }
 
     await knex('users').update({
-      name: user[0].name,
-      email: user[0].email,
-      password: user[0].password,
+      name: user.name,
+      email: user.email,
+      password: user.password,
       updated_at: knex.fn.now()
     }).where({id})
 
