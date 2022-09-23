@@ -87,6 +87,27 @@ class DishesController {
 
     return res.json()
   }
+
+  async delete(req, res) {
+    const { id } = req.params;
+    const dish = await knex('dishes').where({id});
+
+    if(dish.length === 0) {
+      throw new AppError("Prato não encontrado!")
+    };
+
+    try {
+      await knex('dishes').where({id}).delete();
+
+      await knex('ingredients').where({dish_id: id}).delete();
+      
+    } catch {
+      throw new AppError("Não foi possível deletar!")
+    }
+
+
+    return res.json()
+  }
 }
 
 module.exports = DishesController
