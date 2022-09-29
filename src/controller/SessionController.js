@@ -3,7 +3,6 @@ const AppError = require('../utils/AppError');
 const { compare } = require("bcryptjs");
 const authConfig = require("../configs/auth");
 const { sign } = require("jsonwebtoken")
-
 class SessionController{
   async create(req, res) {
     const { email, password } = req.body;

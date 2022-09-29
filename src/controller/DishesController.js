@@ -4,6 +4,13 @@ const AppError = require("../utils/AppError");
 class DishesController {
   async create(req, res) {
     const { name, description, price, ingredients } = req.body;
+    const user_id = req.user.id;
+
+    const [adm] = await knex('users').where({id: user_id});
+
+    if(adm.email !== 'adm@foodexplorer.com') {
+      throw new AppError('Você não está autorizado a criar um prato, faça o login como adm!', 401)
+    }
 
     if(!name) {
       throw new AppError("Escolha um nome para o prato!")
@@ -40,9 +47,9 @@ class DishesController {
 
   async show(req, res) {
     const { id } = req.params;
-    const dish = await knex('dishes').where({id});
+    const [dish] = await knex('dishes').where({id});
 
-    if(dish.length === 0) {
+    if(!dish) {
       throw new AppError("Prato não encontrado!")
     };
 
@@ -50,9 +57,9 @@ class DishesController {
   }
 
   async index(req, res) {
-    const dishes = await knex('dishes');
+    const [dishes] = await knex('dishes');
 
-    if(dishes.length === 0) {
+    if(!dishes) {
       throw new AppError("Nenhum prato cadastrado!")
     };
 
@@ -62,7 +69,20 @@ class DishesController {
   async update(req, res) {
     const { name, description, price, ingredients } = req.body;
     const { id } = req.params;
+    const user_id = req.user.id;
 
+    const [dishes] = await knex('dishes').where({id});
+    
+    if(!dishes) {
+      throw new AppError('Prato não encontrado')
+    }
+    
+    const [adm] = await knex('users').where({id: user_id});
+
+    if(adm.email !== 'adm@foodexplorer.com') {
+      throw new AppError('Você não está autorizado a atualizar esse prato, faça o login como adm!', 401)
+    }
+    
     try {
       await knex("dishes").update({
         name,
@@ -90,11 +110,18 @@ class DishesController {
 
   async delete(req, res) {
     const { id } = req.params;
-    const dish = await knex('dishes').where({id});
+    const user_id = req.user.id;
+    const [dishes] = await knex('dishes').where({id});
+    
+    if(!dishes) {
+      throw new AppError('Prato não encontrado')
+    }
+    
+    const [adm] = await knex('users').where({id: user_id});
 
-    if(dish.length === 0) {
-      throw new AppError("Prato não encontrado!")
-    };
+    if(adm.email !== 'adm@foodexplorer.com') {
+      throw new AppError('Você não está autorizado a deletar esse prato, faça o login como adm!', 401)
+    }
 
     try {
       await knex('dishes').where({id}).delete();

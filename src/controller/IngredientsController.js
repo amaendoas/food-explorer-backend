@@ -7,7 +7,7 @@ class IngredientsController {
     const ingredients = await knex('ingredients');
 
     if(ingredients.length === 0) {
-      throw new AppError("Nenhum ingrediente cadastrado!")
+      throw new AppError("Nenhum ingrediente encontrado!")
     }
 
     return res.json(ingredients)
@@ -18,7 +18,7 @@ class IngredientsController {
     const ingredients = await knex('ingredients').where({dish_id: id});
 
     if(ingredients.length === 0) {
-      throw new AppError("Nenhum ingrediente cadastrado!")
+      throw new AppError("Nenhum ingrediente encontrado!")
     }
 
     return res.json(ingredients)

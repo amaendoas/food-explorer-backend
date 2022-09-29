@@ -3,26 +3,29 @@ const AppError = require('../utils/AppError');
 
 class OrdersController {
   async create(req, res) {
-    const { id } = req.params;
+    const user_id = req.user.id;
     const { dish_id } = req.body;
 
-    const user = await knex('users').where({id})
+    const [user] = await knex('users').where({id: user_id});
 
     if(!dish_id) {
       throw new AppError("Escolha um prato para fazer o pedido.")
     }
 
-    if(user.length === 0) {
+    if(!user) {
       throw new AppError("Crie um usuário para fazer o pedido.")
+    }
+
+    if(user.email === 'adm@foodexplorer.com') {
+      throw new AppError("Você não pode fazer um pedido como administrador, por favor entre em outra conta")
     }
 
     let orderCode = 1;
 
-    const orders = await knex('orders')
+    const orders = await knex('orders').orderBy('code', 'asc')
 
     if(orders.length !== 0) {
       const lastOrderCode = orders[orders.length-1]
-      console.log(lastOrderCode)
       orderCode = lastOrderCode.code
     }
 
@@ -39,7 +42,7 @@ class OrdersController {
         code: orderCode,
         status: "pendente",
         created_at: knex.fn.now(),
-        user_id: id,
+        user_id,
         dishes_id: dish,
       }
     })
@@ -54,53 +57,85 @@ class OrdersController {
   }
 
   async updateStatus(req, res) {
-    const { id } = req.params;
+    const { code } = req.params;
     const { status } = req.body;
+    const user_id = req.user.id;
+    
+    const [order] = await knex('orders').where({code})
 
-    try {
-        await knex('orders').update({status}).where({
-          code: id
-        })
-    } catch {
-      throw new AppError("Não foi possível fazer o update")
+    if(!order) {
+      throw new AppError('Pedido não encontrado')
     }
+
+    const [adm] = await knex('users').where({id: user_id});
+
+    if(adm.email !== 'adm@foodexplorer.com') {
+      throw new AppError('Você não está autorizado a atualizar este pedido', 401)
+    }
+
+    await knex('orders').update({status}).where({
+      code
+    })
 
     return res.json()
   }
 
   async update(req,res) {
-    const { id } = req.params;
+    const { code } = req.params;
     const { dishes_id } = req.body;
+    const user_id = req.user.id;
 
-    const [orders] = await knex('orders').where({code: id})
+    const [adm] = await knex('users').where({id: user_id});
 
-    const dishes = dishes_id.map(dish => {
-      return {
-        code: id,
-        status: orders.status,
-        created_at: orders.created_at,
-        user_id: orders.user_id,
-        dishes_id: dish,
-      }
-    })
-
-
-    try {
-      await knex('orders').where({code: id}).delete()
-      await knex('orders').insert(dishes)
-    } catch {
-      throw new AppError("Não foi possível fazer o update.")
+    const [orders] = await knex('orders').where({code});
+    
+    if(!orders) {
+      throw new AppError('Pedido não encontrado')
     }
+
+    if(adm.email !== 'adm@foodexplorer.com') {
+      throw new AppError('Você não está autorizado a atualizar deste pedido', 401)
+    }
+      const dishes = dishes_id.map(dish => {
+        return {
+          code,
+          status: orders.status,
+          created_at: orders.created_at,
+          user_id: orders.user_id,
+          dishes_id: dish,
+        }
+      })
+
+      try {
+        await knex('orders').where({code}).delete()
+        await knex('orders').insert(dishes)
+        await knex('orders')
+      } catch {
+        throw new AppError("Não foi possível fazer o update.")
+      }
 
     return res.json()
   }
 
   async delete(req, res) {
-    const { id } = req.params;
+    const { code } = req.params;
+    const user_id = req.user.id;
+
+    const [orders] = await knex('orders').where({code});
+    
+    if(!orders) {
+      throw new AppError('Pedido não encontrado')
+    }
+
+    const [adm] = await knex('users').where({id: user_id})
+
+    if(adm.email !== 'adm@foodexplorer.com') {
+      throw new AppError('Você não está autorizado a deletar este pedido', 401)
+    }
 
     try {
       await knex('orders').where({
-        code: id
+        code
       }).delete()
     } catch {
       throw new AppError("Não foi possível deletar")
