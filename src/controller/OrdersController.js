@@ -16,7 +16,7 @@ class OrdersController {
       throw new AppError('Crie um usuário para fazer o pedido.')
     }
 
-    if (user.email === 'adm@foodexplorer.com') {
+    if (user.isAdmin) {
       throw new AppError(
         'Você não pode fazer um pedido como administrador, por favor entre em outra conta'
       )
