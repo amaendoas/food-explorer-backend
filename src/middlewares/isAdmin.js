@@ -6,7 +6,7 @@ async function isAdmin(req, res, next) {
 
   const [user] = await knex('users').where({ id: user_id })
 
-  if (!user.isAdmin) {
+  if (!user.isAdmin || !user) {
     throw new AppError('Usuário não autorizado, por favor faça login como administrador', 401)
   }
 

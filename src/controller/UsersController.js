@@ -71,6 +71,24 @@ class UsersController {
     return res.json()
   }
 
+  async updateFavs(req, res) {
+    const user_id = req.user.id
+    const { favorites } = req.body;
+
+    try {
+      await knex('users')
+        .update({
+          favorites
+        })
+        .where({ id: user_id })
+    } catch {
+      throw new AppError('Não foi possível adicionar aos favoritos')
+    }
+
+
+    return res.json()
+  }
+
   async delete(req, res) {
     const { id } = req.params
 

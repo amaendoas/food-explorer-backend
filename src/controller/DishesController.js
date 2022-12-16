@@ -3,7 +3,7 @@ const AppError = require('../utils/AppError')
 
 class DishesController {
   async create(req, res) {
-    const { name, description, price, ingredients } = req.body
+    const { name, description, price, ingredients, category } = req.body
 
     if (!name) {
       throw new AppError('Escolha um nome para o prato!')
@@ -12,14 +12,19 @@ class DishesController {
       throw new AppError('Adicione uma descrição.')
     }
     if (!price) {
-      throw new AppError('o preço é obrigatório!')
+      throw new AppError('O preço é obrigatório!')
     }
+    if(!category) {
+      throw new AppError('A categoria é obrigatória!')
+    }
+
 
     try {
       const dish_id = await knex('dishes').insert({
         name,
         description,
-        price
+        price,
+        category
       })
 
       const IngredientsInsert = ingredients.map(ingredient => {
@@ -37,7 +42,6 @@ class DishesController {
 
     const dish = await knex('dishes').where({id: dish_id})
 
-
     return res.json(dish)
   }
 
@@ -53,7 +57,7 @@ class DishesController {
   }
 
   async index(req, res) {
-    const [dishes] = await knex('dishes')
+    const dishes = await knex('dishes')
 
     if (!dishes) {
       throw new AppError('Nenhum prato cadastrado!')
