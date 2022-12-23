@@ -58,6 +58,16 @@ class OrdersController {
     return res.json()
   }
 
+  async index(req, res) {
+    const orders = await knex('orders')
+
+    if (orders.length === 0) {
+      throw new AppError('Nenhum pedido encontrado!')
+    }
+
+    return res.json(orders)
+  }
+
   async updateStatus(req, res) {
     const { code } = req.params
     const { status } = req.body

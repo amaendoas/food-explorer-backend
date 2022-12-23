@@ -8,6 +8,7 @@ const ordersController = new OrdersController()
 
 ordersRoutes.use(authentication)
 
+ordersRoutes.get('/', ordersController.index)
 ordersRoutes.post('/', ordersController.create)
 ordersRoutes.patch('/:code', isAdmin, ordersController.updateStatus)
 ordersRoutes.put('/:code', isAdmin, ordersController.update)

@@ -1,6 +1,6 @@
-const knex = require('../database/knex')
-const AppError = require('../utils/AppError')
-const { hash, compare } = require('bcryptjs')
+const knex = require('../database/knex');
+const AppError = require('../utils/AppError');
+const { hash, compare } = require('bcryptjs');
 
 class UsersController {
   async create(req, res) {
@@ -23,7 +23,7 @@ class UsersController {
   }
 
   async update(req, res) {
-    const { name, email, old_password, password } = req.body
+    const { name, email, old_password, password, favorites } = req.body
     const user_id = req.user.id
 
     const [user] = await knex('users').where({ id: user_id })
@@ -34,6 +34,7 @@ class UsersController {
 
     user.name = name ?? user.name
     user.email = email ?? user.email
+    user.favorites = favorites ?? user.favorites
 
     if (email) {
       const [userWithUpdatedEmail] = await knex('users').where({ email })
@@ -64,7 +65,8 @@ class UsersController {
         name: user.name,
         email: user.email,
         password: user.password,
-        updated_at: knex.fn.now()
+        updated_at: knex.fn.now(),
+        favorites: user.favorites
       })
       .where({ id: user_id })
 
