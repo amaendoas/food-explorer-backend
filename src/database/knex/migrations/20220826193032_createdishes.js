@@ -1,4 +1,3 @@
-const { knex } = require("knex");
 
 exports.up = (knex) => knex.schema.createTable('dishes', table => {
   table.increments('id'),

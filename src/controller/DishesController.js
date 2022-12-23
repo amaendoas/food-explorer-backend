@@ -18,7 +18,6 @@ class DishesController {
       throw new AppError('A categoria é obrigatória!')
     }
 
-
     try {
       const dish_id = await knex('dishes').insert({
         name,
@@ -26,6 +25,7 @@ class DishesController {
         price,
         category
       })
+
 
       const IngredientsInsert = ingredients.map(ingredient => {
         return {

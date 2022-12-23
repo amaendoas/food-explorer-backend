@@ -10,4 +10,6 @@ exports.seed = async function(knex) {
       isAdmin: true,
     }
   ]);
+
+  
 };
