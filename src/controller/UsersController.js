@@ -13,11 +13,16 @@ class UsersController {
       throw new AppError('Este e-mail já está em uso')
     }
 
-    await knex('users').insert({
-      name,
-      email,
-      password: hashedPassword
-    })
+    try {
+      await knex('users').insert({
+        name,
+        email,
+        password: hashedPassword
+      })
+    } catch {
+      throw new AppError('Não foi possível cadastrar, tente novamente mais tarde.')
+    }
+
 
     res.status(201).json()
   }
@@ -60,31 +65,18 @@ class UsersController {
       user.password = await hash(password, 8)
     }
 
-    await knex('users')
-      .update({
-        name: user.name,
-        email: user.email,
-        password: user.password,
-        updated_at: knex.fn.now(),
-        favorites: user.favorites
-      })
-      .where({ id: user_id })
-
-    return res.json()
-  }
-
-  async updateFavs(req, res) {
-    const user_id = req.user.id
-    const { favorites } = req.body;
-
     try {
       await knex('users')
         .update({
-          favorites
+          name: user.name,
+          email: user.email,
+          password: user.password,
+          updated_at: knex.fn.now(),
+          favorites: user.favorites
         })
         .where({ id: user_id })
     } catch {
-      throw new AppError('Não foi possível adicionar aos favoritos')
+      throw new AppError('Não foi possível atualizar, tente novamente mais tarde')
     }
 
 
@@ -94,7 +86,12 @@ class UsersController {
   async delete(req, res) {
     const { id } = req.params
 
-    await knex('users').where({ id }).delete()
+    try {
+      await knex('users').where({ id }).delete()
+    } catch {
+      throw new AppError('Não foi possível deletar, tente novamente mais tarde')
+    }
+
 
     return res.json()
   }

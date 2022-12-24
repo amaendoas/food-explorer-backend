@@ -26,23 +26,22 @@ class DishesController {
         category
       })
 
-
       const IngredientsInsert = ingredients.map(ingredient => {
         return {
           name: ingredient,
           dish_id
         }
       })
-
+      
       await knex('ingredients').insert(IngredientsInsert)
-
+      
     } catch {
       throw new AppError('Não foi possível cadastrar!')
     }
 
-    const dish = await knex('dishes').where({id: dish_id})
+    // const dish = await knex('dishes').where({id: dish_id})
 
-    return res.json(dish)
+    return res.status(201).json()
   }
 
   async show(req, res) {
