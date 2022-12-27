@@ -9,6 +9,11 @@ class FavoritesController {
 
     const [user] = await knex('users').where({ id: user_id })
     const [dish] = await knex('dishes').where({ id: dish_id })
+    const favorites = await knex('favorites').where({ dish_id })
+
+    if(favorites.length !== 0) {
+      throw new AppError('O prato adicionado já é favorito')
+    }
 
     if(user.isAdmin) {
       throw new AppError("O usuário Administrador não pode ter favoritos")
@@ -18,16 +23,31 @@ class FavoritesController {
       throw new AppError("Prato não encontrado!")
     }
 
-    try {
       await knex('favorites').insert({
         dish_id,
         user_id
       })
-    } catch {
-      throw new AppError('Não foi possível adicionar esse prato aos seus favoritos, tente novamente mais tarde')
-    }
+      const newFav = await knex('favorites').where({dish_id,
+        user_id})
 
-    res.json()
+    res.json(newFav)
+  }
+
+  async show(req, res) {
+    const user_id = req.user.id
+    const favs = await knex('favorites').where({ user_id })
+
+    return res.json(favs)
+  }
+
+  async delete(req, res) {
+    const { dish_id } = req.params;
+    const user_id = req.user.id;
+    await knex('favorites').where({ dish_id, user_id }).delete()
+
+    const newFavs = await knex('favorites').where({user_id})
+
+    return res.json(newFavs)
   }
 }
 
