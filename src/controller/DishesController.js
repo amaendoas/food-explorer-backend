@@ -17,8 +17,6 @@ class DishesController {
     if(!category) {
       throw new AppError('A categoria é obrigatória!')
     }
-
-    try {
       const dish_id = await knex('dishes').insert({
         name,
         description,
@@ -33,15 +31,11 @@ class DishesController {
         }
       })
       
-      await knex('ingredients').insert(IngredientsInsert)
-      
-    } catch {
-      throw new AppError('Não foi possível cadastrar!')
-    }
+    await knex('ingredients').insert(IngredientsInsert)
 
-    // const dish = await knex('dishes').where({id: dish_id})
+    const dish = await knex('dishes').where({id: dish_id})
 
-    return res.status(201).json()
+    return res.status(201).json(dish)
   }
 
   async show(req, res) {
@@ -74,8 +68,6 @@ class DishesController {
     if (!dishes) {
       throw new AppError('Prato não encontrado')
     }
-
-    try {
       await knex('dishes')
         .update({
           name,
@@ -94,9 +86,6 @@ class DishesController {
       })
 
       await knex('ingredients').insert(IngredientsUpdate).where({ dish_id: id })
-    } catch {
-      throw new AppError('Não foi possível atualizar!')
-    }
 
     return res.json()
   }
@@ -108,14 +97,8 @@ class DishesController {
     if (!dishes) {
       throw new AppError('Prato não encontrado')
     }
-
-    try {
-      await knex('dishes').where({ id }).delete()
-
-      await knex('ingredients').where({ dish_id: id }).delete()
-    } catch {
-      throw new AppError('Não foi possível deletar!')
-    }
+    await knex('dishes').where({ id }).delete()
+    await knex('ingredients').where({ dish_id: id }).delete()
 
     return res.json()
   }

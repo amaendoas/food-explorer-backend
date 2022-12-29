@@ -4,11 +4,18 @@ const AppError = require('../utils/AppError')
 class OrdersController {
   async create(req, res) {
     const user_id = req.user.id
-    const { dish_id } = req.body
+    const { dishes_id } = req.body
 
+    for (let index = 0; index < dishes_id.length; index++) {
+      const existsDish = await knex('dishes').where({ id: dishes_id[index]});
+      if(existsDish.length === 0) {
+        throw new AppError('Prato não encontrado!')
+      }
+    }
+    
     const [user] = await knex('users').where({ id: user_id })
 
-    if (!dish_id) {
+    if (!dishes_id) {
       throw new AppError('Escolha um prato para fazer o pedido.')
     }
 
@@ -39,7 +46,7 @@ class OrdersController {
       orderCode += 1
     }
 
-    const dishes = dish_id.map(dish => {
+    const dishes = dishes_id.map(dish => {
       return {
         code: orderCode,
         status: 'pendente',
@@ -48,12 +55,8 @@ class OrdersController {
         dishes_id: dish
       }
     })
-
-    try {
-      await knex('orders').insert(dishes)
-    } catch {
-      throw new AppError('Não foi possível fazer o seu pedido.')
-    }
+    
+    await knex('orders').insert(dishes)
 
     return res.json()
   }
@@ -107,13 +110,9 @@ class OrdersController {
       }
     })
 
-    try {
       await knex('orders').where({ code }).delete()
       await knex('orders').insert(dishes)
       await knex('orders')
-    } catch {
-      throw new AppError('Não foi possível fazer o update.')
-    }
 
     return res.json()
   }
@@ -126,16 +125,11 @@ class OrdersController {
     if (!orders) {
       throw new AppError('Pedido não encontrado')
     }
-
-    try {
-      await knex('orders')
-        .where({
-          code
-        })
-        .delete()
-    } catch {
-      throw new AppError('Não foi possível deletar')
-    }
+    await knex('orders')
+      .where({
+        code
+      })
+      .delete()
 
     return res.json()
   }
