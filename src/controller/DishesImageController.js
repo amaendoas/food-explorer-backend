@@ -7,8 +7,6 @@ class DishesImageController {
     const imageFilename = req.file.filename;
     const { id } = req.params;
 
-    console.log(id)
-
     const diskStorage = new DiskStorage();
 
     const [dish] = await knex('dishes').where({id});

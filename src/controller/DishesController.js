@@ -17,6 +17,9 @@ class DishesController {
     if(!category) {
       throw new AppError('A categoria é obrigatória!')
     }
+    if(ingredients.length === 0) {
+      throw new AppError('Os ingredientes são obrigatórios')
+    }
       const dish_id = await knex('dishes').insert({
         name,
         description,
@@ -50,7 +53,8 @@ class DishesController {
   }
 
   async index(req, res) {
-    const dishes = await knex('dishes')
+    const { name } = req.query
+    const dishes = await knex('dishes').whereLike("name", `%${name}%` )
 
     if (!dishes) {
       throw new AppError('Nenhum prato cadastrado!')
@@ -68,6 +72,7 @@ class DishesController {
     if (!dishes) {
       throw new AppError('Prato não encontrado')
     }
+    
       await knex('dishes')
         .update({
           name,
@@ -84,7 +89,7 @@ class DishesController {
           dish_id: id
         }
       })
-
+      
       await knex('ingredients').insert(IngredientsUpdate).where({ dish_id: id })
 
     return res.json()
