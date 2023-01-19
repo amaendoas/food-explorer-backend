@@ -4,10 +4,10 @@ const AppError = require('../utils/AppError')
 class OrdersController {
   async create(req, res) {
     const user_id = req.user.id
-    const { dishes_id } = req.body
+    const data = req.body
 
-    for (let index = 0; index < dishes_id.length; index++) {
-      const existsDish = await knex('dishes').where({ id: dishes_id[index]});
+    for (let index = 0; index < data.length; index++) {
+      const existsDish = await knex('dishes').where({ id: data[index].dish_id});
       if(existsDish.length === 0) {
         throw new AppError('Prato não encontrado!')
       }
@@ -15,7 +15,7 @@ class OrdersController {
     
     const [user] = await knex('users').where({ id: user_id })
 
-    if (!dishes_id) {
+    if (data.length === 0) {
       throw new AppError('Escolha um prato para fazer o pedido.')
     }
 
@@ -46,13 +46,14 @@ class OrdersController {
       orderCode += 1
     }
 
-    const dishes = dishes_id.map(dish => {
+    const dishes = data.map(dish => {
       return {
         code: orderCode,
         status: 'pendente',
         created_at: knex.fn.now(),
         user_id,
-        dishes_id: dish
+        dish_id: dish.dish_id,
+        dish_quant: dish.dish_quant
       }
     })
     
@@ -66,6 +67,20 @@ class OrdersController {
 
     if (orders.length === 0) {
       throw new AppError('Nenhum pedido encontrado!')
+    }
+
+    return res.json(orders)
+  }
+
+  async show(req,res) {
+    const { id } = req.params
+    const user_id = req.user.id
+    const orders = await knex('orders').where({ user_id: id})
+
+    const [user] = await knex('users').where({ id: user_id })
+
+    if(Number(user_id) !== Number(id) && !user.isAdmin) {
+      throw new AppError('Usuário não autorizado')
     }
 
     return res.json(orders)

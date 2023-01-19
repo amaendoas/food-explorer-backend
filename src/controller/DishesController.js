@@ -5,6 +5,38 @@ class DishesController {
   async create(req, res) {
     const { name, description, price, ingredients, category } = req.body
 
+    const availableIngredients = ['alface',
+      'ameixa',
+      'amêndoas',
+      'aniz',
+      'café',
+      'camarão',
+      'canela',
+      'canela',
+      'claras',
+      'damasco',
+      'farinha',
+      'limão',
+      'maçã',
+      'maracujá',
+      'massa',
+      'pão',
+      'pão naan',
+      'pepino',
+      'pêssego',
+      'pesto',
+      'presunto',
+      'rabanete',
+      'rúcula',
+      'tomate',
+      'whiskey']
+
+    const isIngredientAvailable = availableIngredients.filter((item) => { return ingredients.indexOf(item) > -1})
+
+    if(isIngredientAvailable.length !== ingredients.length) {
+      throw new AppError('Ingredientes inválidos, por favor escolha outros.')
+    }
+
     if (!name) {
       throw new AppError('Escolha um nome para o prato!')
     }
@@ -20,6 +52,7 @@ class DishesController {
     if(ingredients.length === 0) {
       throw new AppError('Os ingredientes são obrigatórios')
     }
+
       const dish_id = await knex('dishes').insert({
         name,
         description,
