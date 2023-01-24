@@ -9,8 +9,16 @@ class UsersController {
 
     const checkUserExists = await knex('users').where({ email })
 
+    if(!name || !email || !password) {
+      throw new AppError('Preencha dos os campos!')
+    }
+
     if (checkUserExists.length !== 0) {
       throw new AppError('Este e-mail já está em uso')
+    }
+
+    if(password.length < 6) {
+      throw new AppError('A senha tem que conter pelo menos 6 caracteres')
     }
 
       await knex('users').insert({
