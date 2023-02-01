@@ -1,6 +1,7 @@
 {
+  "name": "food-explorer-backend",
   "version": 2,
-  "builds": [
+  "build": [
     {
       "src": "./src/server.js",
       "use": "@vercel/node"
