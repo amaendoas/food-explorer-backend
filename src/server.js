@@ -10,6 +10,10 @@ database();
 const app = express();
 app.use(express.json());
 
+app.get("/", (req, res) => {
+  return res.json("hello world")
+})
+
 app.use("/files", express.static(uploadConfig.UPLOADS_FOLDER))
 
 app.use(cors());
