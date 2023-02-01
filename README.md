@@ -16,7 +16,6 @@
 ## :computer: Sobre o projeto
 
 - O projeto consiste em um Cardápio digital para um restaurante fictício conhecido como foodExplorer.
-- O principal objetivo do projeto é a criação de um formulário multi-step para fins educativos.
 
 ---
 
