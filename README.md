@@ -47,17 +47,16 @@ Para visualizar siga os passos abaixo:
 
 Ferramentas utilizadas no desenvolvimento do projeto:
 
-- Typescript
 - FrontEnd em Reactjs
 - Backend em NodeJs+Express
-- Firestore como banco de dados
+- SqLite como banco de dados
 
 ---
 
 ## :hammer: Utilitários
 
 - Deploy: **em construção**
-- Repo do front-end: **em construção**
+- Repo do front-end: [**front-end**](https://github.com/amaendoas/food-explorer-front-end)
 
 ---
 
