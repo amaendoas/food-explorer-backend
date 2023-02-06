@@ -1,11 +1,7 @@
 const knex = require('../database/knex')
 const AppError = require('../utils/AppError')
 
-class DishesController {
-  async create(req, res) {
-    const { name, description, price, ingredients, category } = req.body
-
-    const availableIngredients = ['alface',
+const availableIngredients = ['alface',
       'ameixa',
       'amêndoas',
       'aniz',
@@ -29,8 +25,12 @@ class DishesController {
       'rabanete',
       'rúcula',
       'tomate',
-      'whiskey']
+      'whiskey'];
 
+class DishesController {
+
+  async create(req, res) {
+    const { name, description, price, ingredients, category } = req.body;
     const isIngredientAvailable = availableIngredients.filter((item) => { return ingredients.indexOf(item) > -1})
 
     if(isIngredientAvailable.length !== ingredients.length) {
@@ -102,8 +102,29 @@ class DishesController {
 
     const [dishes] = await knex('dishes').where({ id })
 
+    if(!name) {
+      throw new AppError('O nome do prato é obrigatório!')
+    }
+    
+    if(!description) {
+      throw new AppError('A descrição é obrigatória!')
+    }
+    
+    if(!price) {
+      throw new AppError('O preço é obrigatório!')
+    }
+
+    if(!ingredients) {
+      throw new AppError('Os ingredientes são obrigatórios!')
+    }
+
     if (!dishes) {
-      throw new AppError('Prato não encontrado')
+      throw new AppError('Prato não encontrado!')
+    }
+    const isIngredientAvailable = availableIngredients.filter((item) => { return ingredients.indexOf(item) > -1})
+
+    if(isIngredientAvailable.length !== ingredients.length) {
+      throw new AppError('Ingredientes inválidos, por favor escolha outros.')
     }
     
       await knex('dishes')
