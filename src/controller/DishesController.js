@@ -1,40 +1,10 @@
 const knex = require('../database/knex')
 const AppError = require('../utils/AppError')
 
-const availableIngredients = ['alface',
-      'ameixa',
-      'amêndoas',
-      'aniz',
-      'café',
-      'camarão',
-      'canela',
-      'claras',
-      'damasco',
-      'farinha',
-      'limão',
-      'maçã',
-      'maracujá',
-      'massa',
-      'pão',
-      'pão naan',
-      'pepino',
-      'pêssego',
-      'pesto',
-      'presunto',
-      'rabanete',
-      'rúcula',
-      'tomate',
-      'whiskey'];
-
 class DishesController {
 
   async create(req, res) {
     const { name, description, price, ingredients, category } = req.body;
-    const isIngredientAvailable = availableIngredients.filter((item) => { return ingredients.indexOf(item) > -1})
-
-    if(isIngredientAvailable.length !== ingredients.length) {
-      throw new AppError('Ingredientes inválidos, por favor escolha outros.')
-    }
 
     if (!name) {
       throw new AppError('Escolha um nome para o prato!')
@@ -120,21 +90,16 @@ class DishesController {
     if (!dishes) {
       throw new AppError('Prato não encontrado!')
     }
-    const isIngredientAvailable = availableIngredients.filter((item) => { return ingredients.indexOf(item) > -1})
-
-    if(isIngredientAvailable.length !== ingredients.length) {
-      throw new AppError('Ingredientes inválidos, por favor escolha outros.')
-    }
     
-      await knex('dishes')
-        .update({
-          name,
-          description,
-          price
-        })
-        .where({ id })
+    await knex('dishes')
+      .update({
+        name,
+        description,
+        price
+      })
+      .where({ id })
 
-      await knex('ingredients').where({ dish_id: id }).del()
+    await knex('ingredients').where({ dish_id: id }).del()
 
       const IngredientsUpdate = ingredients.map(ingredient => {
         return {
